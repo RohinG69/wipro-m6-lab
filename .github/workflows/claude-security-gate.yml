@@ -18,6 +18,12 @@
 name: 🔒 Claude Security Gate
 
 on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to evaluate'
+        required: false
+        default: '1'
   pull_request:
     branches:
       - main
