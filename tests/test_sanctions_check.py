@@ -71,3 +71,14 @@ def test_screening_completes_within_latency_budget():
         screen_transaction(VALID_CUSTOMER_ID, VALID_COUNTERPARTY, VALID_AMOUNT)
         elapsed_ms = (time.monotonic() - start) * 1000
     assert elapsed_ms < 200, f"Screening took {elapsed_ms:.1f}ms, exceeds 200ms budget"
+
+
+def test_dual_list_match_takes_max_confidence():
+    """When both OFAC and UN match, confidence is the max score."""
+    ofac_match = SanctionsMatch(list_source="OFAC", matched_name="Acme Trading Ltd", score=0.91)
+    un_match = SanctionsMatch(list_source="UN", matched_name="Acme Trading Ltd", score=0.83)
+    with patch("sanctions_check._query_sanctions_lists", return_value=[ofac_match, un_match]):
+        result = screen_transaction(VALID_CUSTOMER_ID, VALID_COUNTERPARTY, VALID_AMOUNT)
+    assert result["screened"] is True
+    assert len(result["match_list"]) == 2
+    assert result["confidence"] == pytest.approx(0.91)
