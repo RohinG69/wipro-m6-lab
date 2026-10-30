@@ -147,3 +147,6 @@ def screen_transaction(
     )
 
     return result.to_dict()
+
+# Compliance pipeline step version
+SANCTIONS_CHECK_VERSION = "1.0.0"
